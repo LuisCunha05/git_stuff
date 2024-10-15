@@ -3,10 +3,10 @@
 def bubble(array: list[int | float]):
     assert type(array) == list, 'Argumento precisa ser uma lista'
 
-    for atual in range(len(array) - 1):
-        for j in range(1, len(array)):
-            if(array[atual] > array[j]):
-                array[atual], array[j] = array[j], array[atual]
+    for atual in range(len(array)):
+        for prox in range(len(array)):
+            if(array[prox] > array[atual]):
+                array[prox], array[atual] = array[atual], array[prox]
 
 while True:
     try:
