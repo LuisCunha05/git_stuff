@@ -5,7 +5,7 @@ def isPalindrome(word: str) -> bool:
     word = word.replace(' ', '')
 
     for i in range(len(word) // 2):
-        if(word[i] != word[-(i + 1)]):
+        if(word[i].lower() != word[-(i + 1)].lower()):
             return False
     return True
 
