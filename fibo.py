@@ -1,7 +1,9 @@
 
 def fiboPrinter(count: int):
-    assert type(count) == int, "count precisa ser um inteiro!"
-    assert int(count) > 0, "count precisa ser maior que zero"
+    if type(count) != int:
+        raise TypeError("count precisa ser um inteiro!")
+    if int(count) > 0:
+        raise TypeError("count precisa ser maior que zero")
 
     n_2 = 0
     n_1 = 1
