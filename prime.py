@@ -1,10 +1,12 @@
 def isOdd(num: int):
-    assert type(num) == int, f'O valor {num} precisa ser um inteiro!'
+    if type(num) != int:
+        raise TypeError(f'O valor {num} precisa ser um inteiro!') 
 
     return num & 1
 
-def isPrime(number: int):
-    assert type(number) == int, f'O valor {number} precisa ser um inteiro!'
+def isPrime(number: int) -> bool:
+    if type(number) != int:
+        raise TypeError(f'O valor {number} precisa ser um inteiro!')
 
     if(isOdd(number)):
         for i in range(3, int(number ** 0.5) + 1, 2):
