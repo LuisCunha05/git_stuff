@@ -67,20 +67,23 @@ class Livro:
 class Biblioteca:
     Acervo: list[Livro] = []
 
-    def cadastrar(self, livro: Livro) -> bool:
-        if(livro in self.Acervo):
+    @staticmethod
+    def cadastrar(livro: Livro) -> bool:
+        if(livro in Biblioteca.Acervo):
             print("Livro já está cadastrado!")
             return False
             
 
-        self.Acervo.append(livro)
+        Biblioteca.Acervo.append(livro)
 
-    def listar(self):
-        for idx, book in enumerate(self.Acervo):
+    @staticmethod
+    def listar():
+        for idx, book in enumerate(Biblioteca.Acervo):
             print(f'Livro {idx}: {book}')
     
-    def getAtributos(self, index: int):
-        livro = self.Acervo[index]
+    @staticmethod
+    def getAtributos(index: int):
+        livro = Biblioteca.Acervo[index]
 
         return f"""
             {livro.titulo},
@@ -89,8 +92,8 @@ class Biblioteca:
             {livro.codigo},
             {livro.usuario}
         """
-    
-    def fazerEmprestimo(self, usuario: Usuario, livro: Livro) -> bool:
+    @staticmethod
+    def fazerEmprestimo(usuario: Usuario, livro: Livro) -> bool:
         if(len(usuario.livros) == usuario.getMaxEmprestimo()):
             print('O usuário já atingiu o maximo de emprestimos')
             return False
@@ -101,8 +104,8 @@ class Biblioteca:
         
         usuario.adicionarLivro(livro.titulo)
         livro.emprestarLivro(usuario)
-
-    def fazerDevolucao(self, usuario: Usuario, livro: Livro) -> bool:
+    @staticmethod
+    def fazerDevolucao(usuario: Usuario, livro: Livro) -> bool:
         if(len(usuario.livros) == 0):
             print('O usuário não possui livros para devolver')
             return False
