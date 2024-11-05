@@ -1,9 +1,9 @@
 from typing import Literal
-from usuario import Usuario
 from database import DB
 
 class Livro:
     def __init__(self, titulo: str, autor: str, genero: str, codigo: str,status: Literal['Disponível', 'Emprestado'] = 'Disponível') -> None:
+        from usuario import Usuario
         self.titulo = titulo
         self.autor = autor
         self.genero = genero
@@ -20,11 +20,15 @@ class Livro:
                 """
             db.exec(query=query, args=(titulo, autor,genero, status, codigo))
             db.commit()
+            db.exec('select id_livro from livro where codigo=%s', (codigo,))
+            self.id, = db.f_one()
             db.close()
         except Exception as e:
             print(e)
 
-    def emprestarLivro(self, usuario: Usuario):
+    def emprestarLivro(self, usuario):
+        from usuario import Usuario
+        usuario: Usuario = usuario
         try:
             db = DB()
             db.exec('select status_livro from livro where codigo=%s', (self.codigo,))
@@ -33,7 +37,6 @@ class Livro:
 
             if(status != 'Disponível'):
                 return
-            
             
         except Exception as e:
             print(e)

@@ -5,7 +5,7 @@ use biblioteca;
 create table usuario (
     id_usuario int PRIMARY key AUTO_INCREMENT,
     nome VARCHAR(50),
-    cpf VARCHAR(30),
+    cpf VARCHAR(30) UNIQUE,
     telefone VARCHAR(30)
 );
 
@@ -22,6 +22,7 @@ CREATE Table emprestimo (
     id_emprestimo int PRIMARY KEY AUTO_INCREMENT,
     id_livro int,
     id_usuario int,
+    devolvido BOOLEAN,
     Foreign Key (id_livro) REFERENCES livro(id_livro),
     Foreign Key (id_usuario) REFERENCES usuario(id_usuario)
 );
