@@ -1,4 +1,4 @@
--- Active: 1730375618989@@10.28.2.34@3306@biblioteca
+-- Active: 1725663609565@@127.0.0.1@3306@biblioteca
 
 use biblioteca;
 
@@ -15,7 +15,7 @@ create table livro (
     autor VARCHAR(50),
     genero VARCHAR(50),
     status_livro VARCHAR(50),
-    codigo VARCHAR(50)
+    isbn VARCHAR(50) UNIQUE
 );
 
 CREATE Table emprestimo (
@@ -27,7 +27,7 @@ CREATE Table emprestimo (
     Foreign Key (id_usuario) REFERENCES usuario(id_usuario)
 );
 
-INSERT INTO livro (titulo, autor, genero, status_livro, codigo) VALUES
+INSERT INTO livro (titulo, autor, genero, status_livro, isbn) VALUES
 ('O Alquimista', 'Paulo Coelho', 'Ficção', 'Disponível', '001'),
 ('1984', 'George Orwell', 'Distopia', 'Disponível', '002'),
 ('Dom Casmurro', 'Machado de Assis', 'Clássico', 'Disponível', '003'),
