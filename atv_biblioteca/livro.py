@@ -78,6 +78,42 @@ class Livro:
     
     def getAsDb(self) -> tuple:
         return (self._titulo, self._autor, self._genero, self._isbn, self._status)
+    
+    def createQuery(self) -> str:
+        return """
+                insert into livro
+                    (titulo, autor, genero, isbn, status_livro)
+                    values (%s,%s,%s,%s,%s)
+                """
+    
+    def deleteQuery(self) -> str:
+        return 'delete from livro where isbn=%s'
+
+    def getIdLivroQuery(self) -> str:
+        return 'select id_livro from livro where isbn=%s'
+    
+    def setEmprestadoQuery(self) -> str:
+        return 'update livro set status_livro=2 where isbn=%s'
+    
+    def alterLivroQuery(self, titulo: bool, autor: bool, genero: bool, status: bool, id_usuario: bool):
+        """"""
+        query = 'update livro set '
+        columns = []
+
+        if(titulo):
+            columns.append('titulo=%s')
+        if(autor):
+            columns.append('autor=%s')
+        if(genero):
+            columns.append('genero=%s')
+        if(status):
+            columns.append('status=%s')
+        if(id_usuario):
+            columns.append('id_usuario=%s')
+        
+        query += ','.join(columns) + 'where isbn=%s'
+
+        return query
 
     def __str__(self) -> str:
         return f'{self._titulo}, {self._autor}'
@@ -161,30 +197,44 @@ class GerenciarLivro:
 
         try:
             db = DB()
-            db.exec('select id_livro from livro where isbn=%s', (isbn,))
-            id, = db.f_one()
+            db.exec(novo.getIdLivroQuery(), (isbn,))
+            id_livro = db.f_one()
+            id_livro = id_livro(0) if id_livro else None
 
-            if(not id):
+            if(not id_livro):
                 print(f'Livro com Isbn: {isbn}, já foi adicionado!')
                 return False
 
-            query = """
-                insert into usuario
-                    (titulo, autor, genero, isbn, status_livro)
-                    values (%s,%s,%s,%s,%s)
-                """
-
-            db.exec(query=query, args=novo.getAsDb())
+            db.exec(query=novo.createQuery(), args=novo.getAsDb())
             db.commit()
             db.close()
             return True
         except Exception as e:
-            print(e)
+            print(f'Erro ao connectar ao banco de dados: {e}')
     
+    @staticmethod
+    def adicionarLivroFromInstance(livro: Livro):
+        """Adiciona um novo livro ao banco de dados. Verifica primeiro se Isbn ja existe no banco e aborta caso sim. Retorna um Bool com status de sucesso da operação de adição"""
+
+        try:
+            db = DB()
+            db.exec(livro.getIdLivroQuery(), (livro.getIsbn(),))
+            id_livro = db.f_one()
+            id_livro = id_livro(0) if id_livro else None
+
+            if(id_livro):
+                print(f'Livro com Isbn: {livro.getIsbn()}, já foi adicionado!')
+                return False
+
+            db.exec(query=livro.createQuery(), args=livro.getAsDb())
+            db.commit()
+            db.close()
+            return True
+        except Exception as e:
+            print(f'Erro ao connectar ao banco de dados: {e}')
     
-    
-    
-    
+    def alterarLivro():
+        pass
     
     
     
@@ -222,10 +272,6 @@ class GerenciarLivro:
     #     return True
 
 if __name__ == "__main__":
-    db = DB()
-    db.exec('select status_livro from livro where isbn=%s', ('003',))
-    status, = db.f_one()
-
     teste = LivroBuilder().addTitulo('apa').addAutor('caa').addGenero('da').addIsbn('007').addStatus().build()
 
-    print(*teste.getAsDb())
+    print(GerenciarLivro.adicionarLivroFromInstance(teste))
