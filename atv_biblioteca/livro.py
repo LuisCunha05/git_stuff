@@ -95,8 +95,13 @@ class Livro:
     def setEmprestadoQuery(self) -> str:
         return 'update livro set status_livro=2 where isbn=%s'
     
-    def alterLivroQuery(self, titulo: bool, autor: bool, genero: bool, status: bool, id_usuario: bool):
-        """"""
+    def alterLivroQuery(self, titulo: bool | None = False, autor: bool | None = False, genero: bool | None = False, status: bool | None = False, id_usuario: bool | None = False) -> str:
+        """
+        Gera o query para alterar os dados selecionados pelos argumentos verdadeiros no método.
+        Example:
+            update livro set titulo=%s,autor=%s,genero=%s,status=%s,id_usuario=%s where isbn=%s
+        """
+
         query = 'update livro set '
         columns = []
 
@@ -111,7 +116,7 @@ class Livro:
         if(id_usuario):
             columns.append('id_usuario=%s')
         
-        query += ','.join(columns) + 'where isbn=%s'
+        query += ','.join(columns) + ' where isbn=%s'
 
         return query
 
@@ -163,6 +168,10 @@ class LivroBuilder:
         if(self._livro.getIdUsuario() is not None and self._livro.getIdUsuario() <= 0):
             raise ValueError(f'O atributo IdUsuario precisa ser maior que Zero')
         return self._livro
+
+def dynamicTuple( isbn: str, titulo: str = None, autor: str = None, genero: str = None, status: int = None, id_usuario: str = None) -> tuple:
+    dynamicTuple.__code__
+
 
 class GerenciarLivro:
     @staticmethod
@@ -233,13 +242,32 @@ class GerenciarLivro:
         except Exception as e:
             print(f'Erro ao connectar ao banco de dados: {e}')
     
-    def alterarLivro():
-        pass
-    
-    
-    
-    
-    
+    @staticmethod
+    def alterarLivro(livro: Livro, titulo: str = None, autor: str = None, genero: str = None, status: int = None, id_usuario: str = None) -> bool:
+        local_vars = locals()
+        del local_vars['livro']
+        try:
+            db = DB()
+            db.exec(livro.getIdLivroQuery(), (livro.getIsbn(),))
+            id_livro = db.f_one()
+            id_livro = id_livro(0) if id_livro else None
+
+            if(not id_livro):
+                print(f'Livro com Isbn: {livro.getIsbn()}, não foi encontrado!')
+                return False
+
+            #Gerando tuple para query
+            arg = [item for item in local_vars.values() if  item is not None]
+            arg.append(livro.getIsbn())
+            arg = tuple(arg)
+            #print(arg)
+
+            db.exec(query=livro.alterLivroQuery(titulo=titulo, autor=autor, genero=genero, status=status, id_usuario=id_usuario), args=arg)
+            db.commit()
+            db.close()
+            return True
+        except Exception as e:
+            print(f'Erro ao connectar ao banco de dados: {e}')
 
     # def emprestarLivro(self, usuario):
     #     from usuario import Usuario
@@ -274,4 +302,5 @@ class GerenciarLivro:
 if __name__ == "__main__":
     teste = LivroBuilder().addTitulo('apa').addAutor('caa').addGenero('da').addIsbn('007').addStatus().build()
 
-    print(GerenciarLivro.adicionarLivroFromInstance(teste))
+    #print(GerenciarLivro.adicionarLivroFromInstance(teste))
+    print(GerenciarLivro.alterarLivro(teste, autor='vapo'))
