@@ -35,8 +35,12 @@ app = QApplication(sys.argv)
 app.setStyleSheet("""
                     QWidget{
                         font-size:24px;
+                        color:#ccc;
                     }
-
+                    QLineEdit{
+                        color:#00F;
+                        width:200px;
+                    }
 """)
 
 tela = Appzao()
