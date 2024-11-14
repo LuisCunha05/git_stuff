@@ -1,7 +1,7 @@
 import sys
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QApplication, QWidget, QLineEdit, QPushButton, QVBoxLayout, QMessageBox
-from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication, QWidget, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QLabel
+from PyQt6.QtGui import QIcon, QPixmap
 
 class Appzao(QWidget):
     def __init__(self) -> None:
@@ -9,7 +9,7 @@ class Appzao(QWidget):
     
         self.setWindowTitle('OOP Qt6')
         self.setWindowIcon(QIcon('pyqt6_example/favicon32.png'))
-        self.resize(300, 200)
+        self.resize(500, 400)
 
         # Cria um layout. QVBoxLayout empilha os itens verticalmente 
         layout = QVBoxLayout()
@@ -19,9 +19,18 @@ class Appzao(QWidget):
         self.input_texto = QLineEdit()
         self.botao = QPushButton('Gerar Texto', clicked=self.mostrar_mensagem)
 
+        # Adiciona label com imagem
+        self.label = QLabel('Texto', alignment=Qt.AlignmentFlag.AlignCenter)
+
+        imagem = QPixmap('pyqt6_example/meme.jpg')
+        largura, comprimento = self.label.width(), self.label.height()
+        imagem.scaled(largura, comprimento, Qt.AspectRatioMode.KeepAspectRatio)
+
+        self.label.setPixmap(imagem)
 
         layout.addWidget(self.input_texto)
         layout.addWidget(self.botao)
+        layout.addWidget(self.label)
 
     def mostrar_mensagem(self):
         msg_box = QMessageBox()

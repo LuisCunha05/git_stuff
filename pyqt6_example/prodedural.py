@@ -1,6 +1,7 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox, QLineEdit, QVBoxLayout
-from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox, QLineEdit, QVBoxLayout, QLabel
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtCore import Qt
 
 def mostrar_mensagem():
     msg_box = QMessageBox()
@@ -15,7 +16,7 @@ app = QApplication(sys.argv)
 tela = QWidget()
 tela.setWindowTitle("Procedural Qt6")
 tela.setWindowIcon(QIcon('pyqt6_example/favicon32.png'))
-tela.setGeometry(200, 200, 300, 200)
+tela.resize(500, 400)
 
 # Cria um layout. QVBoxLayout empilha os itens verticalmente 
 layout = QVBoxLayout()
@@ -28,9 +29,17 @@ input_texto = QLineEdit()
 botao = QPushButton("Clique aqui")
 botao.clicked.connect(mostrar_mensagem)
 
+# Adiciona label com imagem
+label = QLabel('Texto', alignment=Qt.AlignmentFlag.AlignCenter)
+imagem = QPixmap('pyqt6_example/meme.jpg')
+largura, comprimento = label.width(), label.height()
+imagem.scaled(largura, comprimento, Qt.AspectRatioMode.KeepAspectRatio)
+label.setPixmap(imagem)
+
 # Adiciona os Widget no layout
 layout.addWidget(input_texto)
 layout.addWidget(botao)
+layout.addWidget(label)
 
 # Exibe a janela
 tela.show()
