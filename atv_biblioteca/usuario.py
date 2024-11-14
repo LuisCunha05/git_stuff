@@ -46,6 +46,8 @@ class Usuario:
         db = DB()
         db.exec()
         return True
+    def getIdUsuario(self):
+        return 'select id_usuario from usuario where cpf = %s'
 
 if __name__ == "__main__":
     co = Usuario('Lalau', '123', '321')

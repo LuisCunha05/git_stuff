@@ -40,3 +40,10 @@ INSERT INTO usuario (nome, cpf, telefone) VALUES
 ('Ana Oliveira', '111.222.333-44', '(31) 91234-5678'),
 ('Carlos Pereira', '555.666.777-88', '(41) 93456-7890'),
 ('Fernanda Costa', '222.333.444-99', '(51) 94567-8901');
+
+INSERT INTO emprestimo (id_livro,id_usuario,devolvido) VALUES (1, 2, FALSE);
+INSERT INTO emprestimo (id_livro,id_usuario,devolvido) VALUES (3, 1, FALSE);
+
+INSERT INTO emprestimo (id_livro,id_usuario,devolvido) VALUES (3, 4, FALSE);
+
+-- select * from emprestimo where id_livro=3 order by id_emprestimo desc;

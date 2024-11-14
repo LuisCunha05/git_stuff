@@ -7,7 +7,6 @@ class Livro:
         self._genero: str = ''
         self._isbn: str = ''
         self._status: int = None #1:disponivel,2-emprestado,3-extraviado,4-danificado
-        self._id_usuario: int = None
 
     def setTitulo(self, titulo: str):
         if(type(titulo) != str):
@@ -50,14 +49,6 @@ class Livro:
 
         self._status = status
 
-    def setIdUsuario(self, id_usuario: int):
-        if(type(id_usuario) != int):
-            raise TypeError('Tipo esperado: int')
-        if(id_usuario <= 0):
-            raise ValueError('Valor precisa ser maior que 0')
-
-        self._id_usuario = id_usuario
-
     def getTitulo(self) -> str:
         return self._titulo
 
@@ -73,12 +64,9 @@ class Livro:
     def getStatus(self) -> int:
         return self._status
 
-    def getIdUsuario(self) -> int:
-        return self._id_usuario
-    
     def getAsDb(self) -> tuple:
         return (self._titulo, self._autor, self._genero, self._isbn, self._status)
-    
+
     def createQuery(self) -> str:
         return """
                 insert into livro
@@ -95,11 +83,11 @@ class Livro:
     def setEmprestadoQuery(self) -> str:
         return 'update livro set status_livro=2 where isbn=%s'
     
-    def alterLivroQuery(self, titulo: bool | None = False, autor: bool | None = False, genero: bool | None = False, status: bool | None = False, id_usuario: bool | None = False) -> str:
+    def alterLivroQuery(self, titulo: bool | None = False, autor: bool | None = False, genero: bool | None = False, status: bool | None = False) -> str:
         """
         Gera o query para alterar os dados selecionados pelos argumentos verdadeiros no método.
         Example:
-            update livro set titulo=%s,autor=%s,genero=%s,status=%s,id_usuario=%s where isbn=%s
+            update livro set titulo=%s,autor=%s,genero=%s,status_livro=%s where isbn=%s
         """
 
         query = 'update livro set '
@@ -112,9 +100,7 @@ class Livro:
         if(genero):
             columns.append('genero=%s')
         if(status):
-            columns.append('status=%s')
-        if(id_usuario):
-            columns.append('id_usuario=%s')
+            columns.append('status_livro=%s')
         
         query += ','.join(columns) + ' where isbn=%s'
 
@@ -124,7 +110,7 @@ class Livro:
         return f'{self._titulo}, {self._autor}'
 
     def __iter__(self):
-        return iter((self._titulo, self._autor, self._genero, self._isbn, self._status, self._id_usuario))
+        return iter((self._titulo, self._autor, self._genero, self._isbn, self._status))
 
 class LivroBuilder:
     def __init__(self) -> None:
@@ -150,10 +136,6 @@ class LivroBuilder:
         self._livro.setStatus(status)
         return self
 
-    def addIdUsuario(self, id_usuario: int):
-        self._livro.setIdUsuario(id_usuario)
-        return self
-    
     def build(self):
         if(self._livro.getTitulo() == ''):
             raise ValueError(f'O atributo Titulo não pode ser vazio')
@@ -165,15 +147,13 @@ class LivroBuilder:
             raise ValueError(f'O atributo Isbn não pode ser vazio')
         if(self._livro.getStatus() is None):
             raise ValueError(f'O atributo Status precisa ser um int')
-        if(self._livro.getIdUsuario() is not None and self._livro.getIdUsuario() <= 0):
-            raise ValueError(f'O atributo IdUsuario precisa ser maior que Zero')
         return self._livro
 
-def dynamicTuple( isbn: str, titulo: str = None, autor: str = None, genero: str = None, status: int = None, id_usuario: str = None) -> tuple:
+def dynamicTuple( isbn: str, titulo: str = None, autor: str = None, genero: str = None, status: int = None) -> tuple:
     dynamicTuple.__code__
 
 
-class GerenciarLivro:
+class ControllerLivro:
     @staticmethod
     def instanceFromDB(isbn: str) -> Livro:
         try:
@@ -206,9 +186,7 @@ class GerenciarLivro:
 
         try:
             db = DB()
-            db.exec(novo.getIdLivroQuery(), (isbn,))
-            id_livro = db.f_one()
-            id_livro = id_livro(0) if id_livro else None
+            id_livro = ControllerLivro.getIdLivro(db, isbn)
 
             if(not id_livro):
                 print(f'Livro com Isbn: {isbn}, já foi adicionado!')
@@ -227,9 +205,7 @@ class GerenciarLivro:
 
         try:
             db = DB()
-            db.exec(livro.getIdLivroQuery(), (livro.getIsbn(),))
-            id_livro = db.f_one()
-            id_livro = id_livro(0) if id_livro else None
+            id_livro = ControllerLivro.getIdLivro(db, livro)
 
             if(id_livro):
                 print(f'Livro com Isbn: {livro.getIsbn()}, já foi adicionado!')
@@ -243,64 +219,95 @@ class GerenciarLivro:
             print(f'Erro ao connectar ao banco de dados: {e}')
     
     @staticmethod
-    def alterarLivro(livro: Livro, titulo: str = None, autor: str = None, genero: str = None, status: int = None, id_usuario: str = None) -> bool:
-        local_vars = locals()
-        del local_vars['livro']
+    def alterarLivro(livro: Livro, titulo: str = None, autor: str = None, genero: str = None, status: int = None) -> bool:
         try:
             db = DB()
-            db.exec(livro.getIdLivroQuery(), (livro.getIsbn(),))
-            id_livro = db.f_one()
-            id_livro = id_livro(0) if id_livro else None
+            id_livro = ControllerLivro.getIdLivro(db, livro)
 
             if(not id_livro):
                 print(f'Livro com Isbn: {livro.getIsbn()}, não foi encontrado!')
                 return False
 
             #Gerando tuple para query
-            arg = [item for item in local_vars.values() if  item is not None]
+            arg = []
+            if(titulo):
+                arg.append(titulo)
+            if(autor):
+                arg.append(autor)
+            if(genero):
+                arg.append(genero)
+            if(status):
+                arg.append(status)
             arg.append(livro.getIsbn())
             arg = tuple(arg)
-            #print(arg)
 
-            db.exec(query=livro.alterLivroQuery(titulo=titulo, autor=autor, genero=genero, status=status, id_usuario=id_usuario), args=arg)
+            db.exec(query=livro.alterLivroQuery(titulo=titulo, autor=autor, genero=genero, status=status), args=arg)
             db.commit()
             db.close()
             return True
         except Exception as e:
             print(f'Erro ao connectar ao banco de dados: {e}')
+            return False
 
-    # def emprestarLivro(self, usuario):
-    #     from usuario import Usuario
-    #     usuario: Usuario = usuario
-    #     try:
-    #         db = DB()
-    #         db.exec('select status_livro from livro where codigo=%s', (self.codigo,))
-    #         status,  = db.f_one()
-    #         print(status)
+    @staticmethod
+    def emprestarLivro(livro: Livro, id_usuario: int):
+        # from usuario import Usuario
+        # usuario: Usuario = usuario
+        try:
+            db = DB()
+            id_livro = ControllerLivro.getIdLivro(db, livro)
 
-    #         if(status != 'Disponível'):
-    #             return
-            
-    #     except Exception as e:
-    #         print(e)
+            db.exec('select devolvido from emprestimo where id_livro=%s and id_usuario=%s order by id_emprestimo desc' , (id_livro, id_usuario))
 
-    #     if(self.status != 'Disponivel'):
-    #         print('Livro já está emprestado!')
-    #         return False
-    #     self.status = 'Emprestado'
-    #     self.usuario = usuario
-    #     return True
+            result = db.f_one()
+            if(result):
+                result = result[0]
+            else:
+                print('Erro: Usuário inexistente')
+                return False
+
+            if(not ControllerLivro.alterarLivro(livro=livro, id_usuario=id_usuario, status=2)):
+                print('')
+                return False
+
+            db.close()
+            return True
+        except Exception as e:
+            print(f'Erro ao connectar ao banco de dados: {e}')
+            return False
+
+    @staticmethod
+    def devolverLivro(livro: Livro):
+        try:
+            if(not ControllerLivro.alterarLivro(livro=livro, status=1)):
+                return False
+
+            return True
+        except Exception as e:
+            print(f'Erro ao connectar ao banco de dados: {e}')
+            return False
     
-    # def devolverLivro(self):
-    #     if(self.status != 'Emprestado'):
-    #         print('Livro não está emprestado!')
-    #         return False
-    #     self.status = 'Disponível'
-    #     self.usuario = None
-    #     return True
+    @staticmethod
+    def getIdLivro(database:DB, livro: Livro | str) -> int:
+        """Retorna o id do livro caso exista, Raises ValueError se livro não exister no banco de dados"""
+
+        if(isinstance(livro, Livro)):
+            database.exec(livro.getIdLivroQuery(), (livro.getIsbn(),))
+        elif(type(livro) == str):
+            database.exec('select id_livro from livro where isbn=%s', (livro,))
+        else:
+            raise TypeError('Livro não corresponde a um tipo válido')
+
+        id_livro = database.f_one()
+
+        if(not id_livro):
+            raise ValueError('Livro inexistente')
+
+        id_livro = id_livro[0]
+        return id_livro
 
 if __name__ == "__main__":
-    teste = LivroBuilder().addTitulo('apa').addAutor('caa').addGenero('da').addIsbn('007').addStatus().build()
+    teste = LivroBuilder().addTitulo('test1').addAutor('test2').addGenero('test3').addIsbn('007').addStatus().build()
 
-    #print(GerenciarLivro.adicionarLivroFromInstance(teste))
-    print(GerenciarLivro.alterarLivro(teste, autor='vapo'))
+    #print(ControllerLivro.adicionarLivroFromInstance(teste))
+    print(ControllerLivro.devolverLivro(teste))
