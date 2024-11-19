@@ -67,23 +67,47 @@ class Livro:
     def getAsDb(self) -> tuple:
         return (self._titulo, self._autor, self._genero, self._isbn, self._status)
 
-    def createQuery(self) -> str:
+    @staticmethod
+    def createQuery() -> str:
         return """
                 insert into livro
                     (titulo, autor, genero, isbn, status_livro)
                     values (%s,%s,%s,%s,%s)
                 """
     
-    def deleteQuery(self) -> str:
-        return 'delete from livro where isbn=%s'
+    @staticmethod
+    def selectQuery(titulo:bool|None = False, autor:bool|None = False, genero:bool|None = False, isbn:bool|None = False, status_livro:bool|None = False) -> str:
+        """
+        Gera o query para ler os livros, aplicando os filtros dados pelos argumentos verdadeiros no método.
+        Example:
+            select * from livro where titulo=%s and autor=%s and genero=%s and isbn=%s
+        """
 
-    def getIdLivroQuery(self) -> str:
-        return 'select id_livro from livro where isbn=%s'
+        query = 'select * from livro'
+        columns:list[str] = []
+
+        if(titulo):
+            columns.append('titulo=%s')
+        if(autor):
+            columns.append('autor=%s')
+        if(genero):
+            columns.append('genero=%s')
+        if(isbn):
+            columns.append('isbn=%s')
+        if(status_livro):
+            columns.append('status_livro=%s')
+
+        if(len(columns) != 0):
+            query += ' where ' + ' and '.join(columns)
+
+        return query
+
+    @staticmethod
+    def deleteQuery() -> str:
+        return 'delete from livro where isbn=%s'
     
-    def setEmprestadoQuery(self) -> str:
-        return 'update livro set status_livro=2 where isbn=%s'
-    
-    def alterLivroQuery(self, titulo: bool | None = False, autor: bool | None = False, genero: bool | None = False, status: bool | None = False) -> str:
+    @staticmethod
+    def updateQuery(titulo:bool|None = False, autor:bool|None = False, genero:bool|None = False, status:bool|None = False) -> str:
         """
         Gera o query para alterar os dados selecionados pelos argumentos verdadeiros no método.
         Example:
@@ -105,6 +129,14 @@ class Livro:
         query += ','.join(columns) + ' where isbn=%s'
 
         return query
+    
+    @staticmethod
+    def getIdQuery() -> str:
+        return 'select id_livro from livro where isbn=%s'
+    
+    @staticmethod
+    def setEmprestadoQuery() -> str:
+        return 'update livro set status_livro=2 where isbn=%s'
 
     def __str__(self) -> str:
         return f'{self._titulo}, {self._autor}'
@@ -149,21 +181,23 @@ class LivroBuilder:
             raise ValueError(f'O atributo Status precisa ser um int')
         return self._livro
 
-def dynamicTuple( isbn: str, titulo: str = None, autor: str = None, genero: str = None, status: int = None) -> tuple:
-    dynamicTuple.__code__
-
-
 class ControllerLivro:
     @staticmethod
     def instanceFromDB(isbn: str) -> Livro:
         try:
             db = DB()
-            query = """select titulo,autor,genero,isbn,status_livro from livro where isbn=%s"""
 
-            db.exec(query, (isbn,))
+            db.exec(Livro.selectQuery(isbn=True), (isbn,))
             data = db.f_one()
 
-            return Livro(titulo=data[0],autor=data[1], genero=data[2], isbn=data[3], status=data[4])
+            return (LivroBuilder()
+                            .addTitulo(data[0])
+                            .addAutor(data[1])
+                            .addGenero(data[2])
+                            .addIsbn(data[3])
+                            .addStatus(data[4])
+                            .build()
+                        )
         except Exception as e:
             print(e)
 
@@ -241,7 +275,7 @@ class ControllerLivro:
             arg.append(livro.getIsbn())
             arg = tuple(arg)
 
-            db.exec(query=livro.alterLivroQuery(titulo=titulo, autor=autor, genero=genero, status=status), args=arg)
+            db.exec(query=livro.updateQuery(titulo=titulo, autor=autor, genero=genero, status=status), args=arg)
             db.commit()
             db.close()
             return True
@@ -292,7 +326,7 @@ class ControllerLivro:
         """Retorna o id do livro caso exista, Raises ValueError se livro não exister no banco de dados"""
 
         if(isinstance(livro, Livro)):
-            database.exec(livro.getIdLivroQuery(), (livro.getIsbn(),))
+            database.exec(livro.getIdQuery(), (livro.getIsbn(),))
         elif(type(livro) == str):
             database.exec('select id_livro from livro where isbn=%s', (livro,))
         else:
@@ -310,4 +344,4 @@ if __name__ == "__main__":
     teste = LivroBuilder().addTitulo('test1').addAutor('test2').addGenero('test3').addIsbn('007').addStatus().build()
 
     #print(ControllerLivro.adicionarLivroFromInstance(teste))
-    print(ControllerLivro.devolverLivro(teste))
+    #print(teste.selectQuery(titulo=True, isbn=True, autor=True, genero=True))
