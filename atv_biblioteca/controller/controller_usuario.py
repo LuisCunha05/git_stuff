@@ -1,5 +1,5 @@
-from usuario import Usuario
-from database import DB
+from atv_biblioteca.model.usuario import Usuario, UsuarioBuilder
+from atv_biblioteca.model.database import DB
 
 class ControllerUsuario:
 

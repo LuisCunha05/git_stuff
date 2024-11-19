@@ -1,5 +1,4 @@
-from livro import Livro
-from database import DB
+from atv_biblioteca.model.database import DB
 
 class Usuario:
     def __init__(self) -> None:

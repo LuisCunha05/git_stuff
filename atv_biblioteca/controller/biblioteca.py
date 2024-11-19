@@ -1,8 +1,11 @@
 from __future__ import annotations
 from typing import Literal
-from database import DB
-from usuario import Usuario
-from livro import Livro
+from atv_biblioteca.model.database import DB
+from atv_biblioteca.model.usuario import Usuario
+from atv_biblioteca.model.livro import Livro
+from atv_biblioteca.controller.controller_livro import ControllerLivro
+from atv_biblioteca.controller.controller_usuario import ControllerUsuario
+
 
 class Biblioteca:
     Acervo: list[Livro] = []
