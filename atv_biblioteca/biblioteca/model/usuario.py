@@ -1,4 +1,3 @@
-from atv_biblioteca.model.database import DB
 
 class Usuario:
     def __init__(self) -> None:
@@ -97,7 +96,7 @@ class Usuario:
         """
         Gera o query para alterar os dados selecionados pelos argumentos verdadeiros no método.
         Example:
-            update usuario set nome=%s,senha=%s,email=%s where is_usuario=%s
+            update usuario set nome=%s,senha=%s,email=%s where id_usuario=%s
         """
 
         query = 'update usuario set '
@@ -153,6 +152,8 @@ class UsuarioBuilder():
         
         return self._usuario
 
+Usuario.__name__ = 'Usuario'
+UsuarioBuilder.__name__ = 'UsuarioBuilder'
 
 if __name__ == "__main__":
     aa = (UsuarioBuilder()

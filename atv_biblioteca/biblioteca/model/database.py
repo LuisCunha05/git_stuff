@@ -1,6 +1,6 @@
 try:
     import mysql.connector as myc
-    from atv_biblioteca.model.config import DB_CONFIG
+    from biblioteca.model.config import DB_CONFIG
     from mysql.connector.aio.cursor import MySQLCursor
 except ImportError as e:
     print(f'Você não possui os arquivos necessários!\nErro:{e}')
@@ -33,3 +33,6 @@ class DB:
     def commit(self):
         """Aplica mudanças ao Banco de dados, como insert, update, etc"""
         self.database.commit()
+
+if __name__ == '__main__':
+    t = DB()

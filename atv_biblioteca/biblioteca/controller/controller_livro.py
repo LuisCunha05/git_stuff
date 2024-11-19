@@ -1,5 +1,5 @@
-from atv_biblioteca.model.database import DB
-from atv_biblioteca.model.livro import Livro, LivroBuilder
+from ..model.database import DB
+from ..model.livro import Livro, LivroBuilder
 
 class ControllerLivro:
     @staticmethod
