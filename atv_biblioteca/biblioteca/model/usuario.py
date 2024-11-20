@@ -1,3 +1,4 @@
+__all__ = ['Usuario', 'UsuarioBuilder']
 
 class Usuario:
     def __init__(self) -> None:

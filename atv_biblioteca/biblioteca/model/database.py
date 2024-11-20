@@ -1,6 +1,8 @@
+__all__ = ['DB']
+
 try:
     import mysql.connector as myc
-    from biblioteca.model.config import DB_CONFIG
+    from ..model.config import DB_CONFIG
     from mysql.connector.aio.cursor import MySQLCursor
 except ImportError as e:
     print(f'Você não possui os arquivos necessários!\nErro:{e}')

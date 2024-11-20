@@ -1,8 +1,9 @@
 from __future__ import annotations
 from typing import Literal
-from ..model.usuario import Usuario, UsuarioBuilder
 from ..model.livro import Livro, LivroBuilder
+from ..model.usuario import Usuario, UsuarioBuilder
 
+__all__ = ['Biblioteca']
 
 class Biblioteca:
     Acervo: list[Livro] = []
@@ -57,4 +58,14 @@ class Biblioteca:
         livro.devolverLivro()
 
 if __name__ == "__main__":
-    pass
+    teste = (LivroBuilder()
+                .addId(7)
+                .addTitulo('test1')
+                .addAutor('test2')
+                .addGenero('test3')
+                .addIsbn('007')
+                .addStatus()
+                .build()
+            )
+
+    print(teste)

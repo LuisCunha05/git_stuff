@@ -1,5 +1,7 @@
-from ..model.database import DB
-from ..model.livro import Livro, LivroBuilder
+__all__ = ['ControllerLivro']
+from biblioteca.model.database import DB
+from biblioteca.model.livro import Livro, LivroBuilder
+from biblioteca.model.usuario import Usuario, UsuarioBuilder
 
 class ControllerLivro:
     @staticmethod

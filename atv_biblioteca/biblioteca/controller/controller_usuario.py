@@ -1,5 +1,6 @@
-from atv_biblioteca.model.usuario import Usuario, UsuarioBuilder
-from atv_biblioteca.model.database import DB
+__all__ = ['ControllerUsuario']
+from biblioteca.model.database import DB
+from biblioteca.model.usuario import Usuario, UsuarioBuilder
 
 class ControllerUsuario:
 
